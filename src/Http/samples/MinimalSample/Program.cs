@@ -2,12 +2,8 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Reflection;
-using System.Text;
-using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
-
-builder.Services.AddControllers();
 
 var app = builder.Build();
 
@@ -22,6 +18,8 @@ app.MapGet("/hello/{name}", (string name) => $"Hello {name}!")
         {
             return invocationContext =>
             {
+                // Map the first string argument we
+                // receive to an upper-case string
                 var modifiedArgument = invocationContext
                     .GetArgument<string>(0)
                     .ToUpperInvariant();
@@ -31,17 +29,6 @@ app.MapGet("/hello/{name}", (string name) => $"Hello {name}!")
         }
 
         return invocationContext => next(invocationContext);
-    });
-
-app.MapControllers()
-    .AddEndpointFilter((invocationContext, next) =>
-    {
-        var argument = invocationContext.GetArgument<string>(0);
-        if (argument != null)
-        {
-            invocationContext.Arguments[0] = Convert.ToBase64String(Encoding.UTF8.GetBytes(argument));
-        }
-        return next(invocationContext);
     });
 
 app.Run();
